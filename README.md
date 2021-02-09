@@ -1,5 +1,5 @@
 # Alpine
-![Build](https://github.com/smoretto/alpine/workflows/Build/badge.svg)
-![Deploy](https://github.com/smoretto/alpine/workflows/Deploy/badge.svg)
+![Classic](https://github.com/smoretto/alpine/workflows/build-classic/badge.svg)
+![Docker](https://github.com/smoretto/alpine/workflows/build-docker/badge.svg)
 
 Alpine
