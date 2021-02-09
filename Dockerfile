@@ -32,7 +32,6 @@ USER nobody:nobody
 WORKDIR /app
 EXPOSE 8080
 
-COPY alpine /app/app
 COPY --from=build /src/alps /app
 
 ENTRYPOINT [ "/app/alps" ]
