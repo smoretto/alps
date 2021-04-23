@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - v*
   pull_request:
     branches:
       - main
@@ -12,26 +14,43 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
+    - name: Setting variables
+      id: setvars
+      run: |
+        echo "::set-output name=BUILD_DATE::$(date --utc --iso-8601=seconds)"
+        echo "::set-output name=VERSION::dev-$(echo ${GITHUB_SHA::8})"
     - name: Login to Docker Hub
+      if: github.event_name != 'pull_request'    
       uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Login to GitHub registry
-      uses: docker/login-action@v1 
-      with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GHCR_TOKEN }}
     - name: Checkout
       uses: actions/checkout@v2
     - name: Build using docker
       uses: docker/build-push-action@v2
       with:
         target: app
-        push: true
+        push: ${{ github.event_name != 'pull_request' }}
+        build-args: |
+          version=${{ steps.setvars.outputs.VERSION }}
+          builddate=${{ steps.setvars.outputs.VERSION }}
         tags: |
-          smoretto/alps:latest
-          smoretto/alps:1.0.0
-          ghcr.io/smoretto/alps:latest
-          ghcr.io/smoretto/alps:1.0.0
+          smoretto/alps:${{ steps.setvars.outputs.VERSION }}
+    - name: Set k8s context
+      if: github.event_name != 'pull_request'    
+      uses: azure/k8s-set-context@v1
+      with:
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
+    - name: Deploy
+      if: github.event_name != 'pull_request'    
+      uses: azure/k8s-deploy@v1.4
+      with:
+        namespace: alps-dev
+        manifests: |
+          manifests/service-account.yaml
+          manifests/deployment.yaml
+          manifests/service.yaml
+          manifests/ingress.yaml
+        images: |
+          smoretto/alps:${{ steps.setvars.outputs.VERSION }}

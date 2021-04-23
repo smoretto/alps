@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: alps
+  annotations:
+    cert-manager.io/cluster-issuer: zerossl
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  rules:
+  - host: alps.unseen.it
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: alps
+            port:
+              name: web
+  tls:
+  - hosts:
+    - alps.unseen.it
+    secretName: alps

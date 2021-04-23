@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: alps
+spec:
+  ports:
+    - name: web
+      port: 8080
+      protocol: TCP
+  selector:
+    app: alps
