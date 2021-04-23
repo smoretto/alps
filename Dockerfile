@@ -1,4 +1,4 @@
-FROM golang:1.15.8-alpine as build
+FROM golang:1.16.3-alpine as build
 
 WORKDIR /src
 
@@ -13,10 +13,12 @@ COPY . .
 ENV CGO_ENABLED=0
 
 ARG version=undef
+ARG builddate=undef
 
-RUN go build -ldflags "-X main.version=$version" -o alps main.go
+RUN go build -ldflags "-X main.version=$version -X main.builddate=$builddate" -o alps main.go
 RUN go test -covermode=count -coverprofile=coverage.txt -v ./...
 RUN go vet ./...
+RUN go get -u golang.org/x/lint/golint
 RUN go run golang.org/x/lint/golint -set_exit_status ./...
 
 FROM scratch AS app
