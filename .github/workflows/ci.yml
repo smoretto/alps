@@ -34,7 +34,7 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         build-args: |
           version=${{ steps.setvars.outputs.VERSION }}
-          builddate=${{ steps.setvars.outputs.VERSION }}
+          builddate=${{ steps.setvars.outputs.BUILD_DATE }}
         tags: |
           smoretto/alps:${{ steps.setvars.outputs.VERSION }}
     - name: Set k8s context
