@@ -24,5 +24,6 @@ func main() {
 
 func index(c echo.Context) error {
 	// change to test CI
+	wrong
 	return c.JSONBlob(http.StatusOK, []byte(fmt.Sprintf(`{"application": "alps", "version": "%s", "buildDate": "%s"}`, version, builddate)))
 }
