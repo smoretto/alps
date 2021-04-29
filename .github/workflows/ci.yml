@@ -53,6 +53,7 @@ jobs:
       with:
         renderEngine: kustomize
         kustomizationPath: ./manifests/overlays/development
+        kubectl-version: latest
     - name: Deploy
       if: github.event_name != 'pull_request'    
       uses: azure/k8s-deploy@v1.4
