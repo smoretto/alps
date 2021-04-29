@@ -1,0 +1,14 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alps
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+      - name: alps
+        resources:
+          limits:
+            cpu: 200m
+            memory: 200Mi

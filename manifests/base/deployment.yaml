@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: alps
 spec:
-  replicas: 2
+  replicas: 0
   selector:
     matchLabels:
       app: alps
@@ -27,9 +27,6 @@ spec:
           requests:
             cpu: 100m
             memory: 100Mi
-          limits:
-            cpu: 200m
-            memory: 200Mi
         # readinessProbe:
         #   httpGet:
         #     path: /ping
