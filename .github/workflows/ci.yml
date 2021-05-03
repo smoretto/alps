@@ -58,6 +58,11 @@ jobs:
         renderEngine: kustomize
         kustomizationPath: ./manifests/overlays/${{ steps.vars.outputs.env }}
         kubectl-version: latest
+    - name: Lint k8s
+      if: github.event_name != 'pull_request'    
+      uses: azure/k8s-lint@v1
+      with:
+        manifests: ${{ steps.bake.outputs.manifestsBundle }}
     - name: Deploy ${{ steps.vars.outputs.env }}
       if: github.event_name != 'pull_request'
       uses: azure/k8s-deploy@v1.4
