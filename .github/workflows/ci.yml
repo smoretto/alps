@@ -27,14 +27,18 @@ jobs:
             echo ::set-output name=envshort::dev
         fi
         echo ::set-output name=version::${TAG:-dev-$(echo ${GITHUB_SHA::8})}
-    - name: Login to Docker Hub
+
+    - name: Login to GitHub registry
       if: github.event_name != 'pull_request'    
       uses: docker/login-action@v1
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GHCR_TOKEN }}
+
     - name: Checkout
       uses: actions/checkout@v2
+
     - name: Build using docker
       uses: docker/build-push-action@v2
       with:
@@ -44,12 +48,14 @@ jobs:
           version=${{ steps.vars.outputs.version }}
           builddate=${{ steps.vars.outputs.builddate }}
         tags: |
-          smoretto/alps:${{ steps.vars.outputs.version }}
+          ghcr.io/smoretto/alps:${{ steps.vars.outputs.version }}
+
     - name: Set k8s context
       if: github.event_name != 'pull_request'    
       uses: azure/k8s-set-context@v1
       with:
         kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
     - name: Apply kustomize on development
       if: github.event_name != 'pull_request'    
       id: bake
@@ -58,6 +64,7 @@ jobs:
         renderEngine: kustomize
         kustomizationPath: ./manifests/overlays/${{ steps.vars.outputs.env }}
         kubectl-version: latest
+
     - name: Deploy ${{ steps.vars.outputs.env }}
       if: github.event_name != 'pull_request'
       uses: azure/k8s-deploy@v1.4
@@ -65,4 +72,4 @@ jobs:
         namespace: alps-${{ steps.vars.outputs.envshort }}
         manifests: ${{ steps.bake.outputs.manifestsBundle }}
         images: |
-          smoretto/alps:${{ steps.vars.outputs.version }}
+          ghcr.io/smoretto/alps:${{ steps.vars.outputs.version }}
